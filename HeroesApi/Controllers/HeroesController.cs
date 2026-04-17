@@ -8,37 +8,45 @@ namespace HeroesApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class HeroesController : ControllerBase {
+public class HeroesController : ControllerBase
+{
 
    [HttpGet]
-   public ActionResult<List<Hero>> GetAll() {
+   public ActionResult<List<Hero>> GetAll()
+   {
       return Ok(HeroesStore.Heroes);
    }
 
    [HttpGet("{id}")]
-   public ActionResult<Hero> GetById(int id) {
+   public ActionResult<Hero> GetById(int id)
+   {
       var hero = HeroesStore.Heroes.FirstOrDefault(h => h.Id == id);
-      if (hero is null) {
+      if (hero is null)
+      {
          return NotFound(new { message = $"Герой с id={id} не найден" });
       }
       return Ok(hero);
    }
 
    [HttpGet("demo")]
-   public ActionResult GetDemo() {
+   public ActionResult GetDemo()
+   {
       var hero = HeroesStore.Heroes.First();
 
-      var defaultOptions = new JsonSerializerOptions {
+      var defaultOptions = new JsonSerializerOptions
+      {
          WriteIndented = true
       };
 
-      var ourOptions = new JsonSerializerOptions {
+      var ourOptions = new JsonSerializerOptions
+      {
          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
          WriteIndented = true,
          Converters = { new JsonStringEnumConverter() }
       };
 
-      return Ok(new {
+      return Ok(new
+      {
          withDefaultSettings = JsonSerializer.Deserialize<object>(
             JsonSerializer.Serialize(hero, defaultOptions), defaultOptions),
          withOurSettings = JsonSerializer.Deserialize<object>(
@@ -48,13 +56,17 @@ public class HeroesController : ControllerBase {
    }
 
    [HttpGet("serialize")]
-   public ActionResult GetSerialize() {
-      var options = new JsonSerializerOptions {
+   public ActionResult GetSerialize()
+   {
+      var options = new JsonSerializerOptions
+      {
          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
          WriteIndented = true,
          Converters = { new JsonStringEnumConverter() }
       };
-      var hero = new Hero {
+
+      var hero = new Hero
+      {
          Id = 99,
          Name = "Тестовый герой",
          RealName = "Студент",
@@ -65,11 +77,14 @@ public class HeroesController : ControllerBase {
          InternalNotes = "Это поле не попадёт в JSON"
       };
 
-      string serialize = JsonSerializer.Serialize(hero, options);
-      var Deserialize = JsonSerializer.Deserialize<Hero>(serialize, options);
-      return Ok(new {
-         serializedJson = serialized,
-         des
+      string serializedJson = JsonSerializer.Serialize(hero, options);
+      var deserializedHero = JsonSerializer.Deserialize<Hero>(serializedJson, options);
+
+      return Ok(new
+      {
+         serializedJson = serializedJson,
+         deserializedObject = deserializedHero,
+         internalNotesAfterDeserialize = deserializedHero?.InternalNotes
       });
    }
 }
